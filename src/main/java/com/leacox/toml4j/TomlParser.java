@@ -24,6 +24,7 @@ public class TomlParser {
 	private static final Matcher valueExpressionMatcher = Pattern.compile("([^\\s][\\w:.,?!@#]+)\\s*=(.+)").matcher("");
 
 	private static final Matcher stringValueMatcher = Pattern.compile("^\".*\"$").matcher("");
+	private static final Matcher stringByteValueMatcher = Pattern.compile("[0-9a-fA-F]{2}").matcher("");
 	private static final Matcher integerValueMatcher = Pattern.compile("^-?\\d+$").matcher("");
 	private static final Matcher floatValueMatcher = Pattern.compile("^-?\\d+\\.\\d+?$").matcher("");
 	private static final Matcher booleanValueMatcher = Pattern.compile("^(true|false)$").matcher("");
@@ -223,6 +224,19 @@ public class TomlParser {
 						break;
 					case '\\':
 						unescapedStringBuilder.append('\\');
+						break;
+					case 'x':
+						String stringByte = new StringBuilder().append(value.charAt(i + 1)).append(value.charAt(i + 2))
+								.toString();
+						if (!stringByteValueMatcher.reset(stringByte).matches()) {
+							throw new ParseException("String value contains an invalid escape sequence: " + value);
+						}
+
+						byte escapedByte = (byte) ((Character.digit(stringByte.charAt(0), 16) << 4) + Character.digit(
+								stringByte.charAt(1), 16));
+						unescapedStringBuilder.append((char) escapedByte);
+						i++;
+						i++;
 						break;
 					default:
 						throw new ParseException("String value contains an invalid escape sequence: " + value);

@@ -1,0 +1,2 @@
+name      = "Jos\x82"             # "José" in latin1 encoding.
+binary_ip = "\x0A\x00\x00\x01"    # 10.0.0.1 as a four byte binary.
